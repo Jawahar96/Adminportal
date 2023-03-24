@@ -1,8 +1,12 @@
-import { Formik, useFormik } from 'formik'
-import axios from 'axios'
-function CreateUser() {
+import React, { useEffect } from 'react'
+import {formik,useFormik} from 'formik';
+import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 
-  const formik=useFormik({
+function Edituser() {
+  const params=useParams()
+  const navigate=useNavigate()
+         const formik= useFormik({
     initialValues : {
       name :"",
       Position :"",
@@ -16,7 +20,7 @@ function CreateUser() {
     validate :(values)=>{
 
       let errors={};
-     if(values.username ==="" &&  values.username.length < 5){
+     if(values.name ==="" &&  values.name.length < 5){
       errors.name ="Enter a valid  name"
      }
 
@@ -27,20 +31,43 @@ function CreateUser() {
      return errors;
 
     },
-    onSubmit : async(values)=>{
-     let user=await  axios.post('https://641c669b1a68dc9e4608a87e.mockapi.io/users',values)
-      alert("User created")
+    onSubmit : async (values)=>{
+      let users=await axios.put(`https://641c669b1a68dc9e4608a87e.mockapi.io/users/${params.id}`,values);
+ navigate('/users/')
+      console.log(values);
+
     }
   });
 
- 
+
+  useEffect(()=>{
+    loadUser()
+  },[])
+
+  let loadUser=async()=>{
+    try{
+      let user=await axios.get(`https://641c669b1a68dc9e4608a87e.mockapi.io/users/${params.id}`)
+      formik.setValues({
+      
+        name:user.data.name,
+        Position:user.data.position,
+        Office:user.data.office,
+        Age:user.data.age,
+         Startdate:user.data.startdate,
+        Salary:user.data.salary,
+        Company:user.data.company
+      })
+    }catch(error){
+
+    }
+  }
   return (
     <div>
       <div className='container'>
     <form onSubmit={formik.handleSubmit}>
     <div className='row'>
         <div className='col-lg-6'>
-          <label> Name</label>
+          <label>User name</label>
           <input className='form-control' type={'text'} 
           value={formik.values.name}
             onChange={formik.handleChange} 
@@ -147,4 +174,4 @@ l
   )
 }
 
-export default CreateUser
+export default Edituser
